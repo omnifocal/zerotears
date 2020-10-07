@@ -14,6 +14,12 @@ type networkInfo struct {
 	MTU               int
 	MulticastLimit    int
 	Revision          int
+	Routes            []route
+	V4AssignMode      v4AssignMode
+}
+
+type v4AssignMode struct {
+	Zt bool
 }
 
 type ipAssignmentPool struct {
@@ -49,6 +55,12 @@ func (z *ztClient) ListNetworks() []string {
 	var out []string
 	z.doReq("GET", "/controller/network", nil, &out)
 	return out
+}
+
+func PrintNetworkInfo(in networkInfo) {
+	tbl := table.New("Network ID", "Name", "Private", "EnableBroadcast", "IPv4 Auto Assign")
+	tbl.AddRow(in.ID, in.Name, in.Private, in.EnableBroadcast, in.V4AssignMode.Zt)
+	tbl.Print()
 }
 
 func PrintNetworkIDs(in []string) {

@@ -21,6 +21,8 @@ func main() {
 	// listNetsCmd := flag.NewFlagSet("ls-networks", flag.ExitOnError)
 	createNetCmd := flag.NewFlagSet("mk-network", flag.ExitOnError)
 	createNetName := createNetCmd.String("name", "", "name")
+	rmNetCmd := flag.NewFlagSet("rm-network", flag.ExitOnError)
+	rmNetID := rmNetCmd.String("id", "", "id")
 
 	switch os.Args[1] {
 	case "status":
@@ -35,7 +37,11 @@ func main() {
 	case "mk-network":
 		createNetCmd.Parse(os.Args[2:])
 		newNet := c.CreateNetwork(*createNetName)
-		fmt.Println(newNet)
+		zerotears.PrintNetworkInfo(newNet)
+	case "rm-network":
+		rmNetCmd.Parse(os.Args[2:])
+		c.DeleteNetwork(*rmNetID)
+		fmt.Println("Network deleted")
 	default:
 		fmt.Println("No valid subcommand was provided")
 		os.Exit(1)
