@@ -1,35 +1,36 @@
 package zerotears
 
 import (
+	"encoding/json"
 	"github.com/rodaine/table"
 )
 
 type networkInfo struct {
-	CreationTime      int
-	EnableBroadcast   bool
-	ID                string
-	IPAssignmentPools []ipAssignmentPool
-	Name              string
-	Private           bool
-	MTU               int
-	MulticastLimit    int
-	Revision          int
-	Routes            []route
-	V4AssignMode      v4AssignMode
+	CreationTime      int                `json:"creationTime,omitempty"`
+	EnableBroadcast   bool               `json:"enableBroadcast,omitempty"`
+	ID                string             `json:"id,omitempty"`
+	IPAssignmentPools []ipAssignmentPool `json:"ipAssignmentPools,omitempty"`
+	Name              string             `json:"name,omitempty"`
+	Private           bool               `json:"private,omitempty"`
+	MTU               int                `json:"mtu,omitempty"`
+	MulticastLimit    int                `json:"multicastLimit,omitempty"`
+	Revision          int                `json:"revision,omitempty"`
+	Routes            []route            `json:"routes,omitempty"`
+	V4AssignMode      *v4AssignMode      `json:"v4AssignMode,omitempty"`
 }
 
 type v4AssignMode struct {
-	Zt bool
+	Zt bool `json:"zt,omitempty"`
 }
 
 type ipAssignmentPool struct {
-	IPRangeEnd   string
-	IPRangeStart string
+	IPRangeEnd   string `json:"ipRangeEnd,omitempty"`
+	IPRangeStart string `json:"ipRangeStart,omitempty"`
 }
 
 type route struct {
-	Target string
-	Via    string
+	Target string `json:"target,omitempty"`
+	Via    string `json:"via,omitempty"`
 }
 
 func (z *ztClient) DeleteNetwork(id string) networkInfo {
@@ -38,9 +39,30 @@ func (z *ztClient) DeleteNetwork(id string) networkInfo {
 	return out
 }
 
-func (z *ztClient) CreateNetwork(name string) networkInfo {
+func (z *ztClient) CreateNetwork(name, rangeStart, rangeEnd, cidr string, autoAssign bool) networkInfo {
+	newNet := networkInfo{
+		Name: name,
+		V4AssignMode: &v4AssignMode{
+			Zt: autoAssign,
+		},
+		IPAssignmentPools: []ipAssignmentPool{
+			{
+				IPRangeStart: rangeStart,
+				IPRangeEnd:   rangeEnd,
+			},
+		},
+		Routes: []route{
+			{
+				Target: cidr,
+			},
+		},
+	}
+	payload, err := json.Marshal(newNet)
+	if err != nil {
+		panic(err)
+	}
+
 	var out networkInfo
-	payload := []byte(`{"name":"` + name + `"}`)
 	z.doReq("POST", "/controller/network/"+z.address+"______", payload, &out)
 	return out
 }
@@ -58,8 +80,8 @@ func (z *ztClient) ListNetworks() []string {
 }
 
 func PrintNetworkInfo(in networkInfo) {
-	tbl := table.New("Network ID", "Name", "Private", "EnableBroadcast", "IPv4 Auto Assign")
-	tbl.AddRow(in.ID, in.Name, in.Private, in.EnableBroadcast, in.V4AssignMode.Zt)
+	tbl := table.New("Network ID", "Name", "Private", "EnableBroadcast", "IPv4 Auto Assign", "IP Range Start", "IP Range End")
+	tbl.AddRow(in.ID, in.Name, in.Private, in.EnableBroadcast, in.V4AssignMode.Zt, in.IPAssignmentPools[0].IPRangeStart, in.IPAssignmentPools[0].IPRangeEnd)
 	tbl.Print()
 }
 

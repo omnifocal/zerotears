@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/omnifocal/zerotears/pkg/zerotears"
 	"io/ioutil"
+	"net"
 	"os"
 )
 
@@ -21,6 +23,8 @@ func main() {
 	// listNetsCmd := flag.NewFlagSet("ls-networks", flag.ExitOnError)
 	createNetCmd := flag.NewFlagSet("mk-network", flag.ExitOnError)
 	createNetName := createNetCmd.String("name", "", "name")
+	createNetAuto := createNetCmd.Bool("auto", true, "auto v4 assignment")
+	createNetCIDR := createNetCmd.String("cidr", "", "cidr")
 	rmNetCmd := flag.NewFlagSet("rm-network", flag.ExitOnError)
 	rmNetID := rmNetCmd.String("id", "", "id")
 
@@ -36,7 +40,12 @@ func main() {
 		zerotears.PrintNetworkIDs(networks)
 	case "mk-network":
 		createNetCmd.Parse(os.Args[2:])
-		newNet := c.CreateNetwork(*createNetName)
+		_, ipNet, err := net.ParseCIDR(*createNetCIDR)
+		if err != nil {
+			panic(err)
+		}
+		rangeStart, rangeEnd := cidr.AddressRange(ipNet)
+		newNet := c.CreateNetwork(*createNetName, rangeStart.String(), rangeEnd.String(), *createNetCIDR, *createNetAuto)
 		zerotears.PrintNetworkInfo(newNet)
 	case "rm-network":
 		rmNetCmd.Parse(os.Args[2:])
