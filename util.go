@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 )
@@ -18,9 +19,8 @@ func (z *ztClient) init() {
 	z.address = status.Address
 }
 
-func (z *ztClient) doReq(method string, path string, body []byte) []byte {
-	url := z.host + path
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
+func (z *ztClient) doReq(method string, path string, body []byte, out interface{}) {
+	req, err := http.NewRequest(method, z.host+path, bytes.NewBuffer(body))
 	req.Header.Add("X-ZT1-Auth", z.secret)
 	if err != nil {
 		panic(err)
@@ -31,11 +31,15 @@ func (z *ztClient) doReq(method string, path string, body []byte) []byte {
 		panic(err)
 	}
 
-	out, err := ioutil.ReadAll(resp.Body)
+	outBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
-	return out
+
+	err = json.Unmarshal(outBytes, out)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func readSecret(fileName string) string {

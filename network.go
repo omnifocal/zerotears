@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/rodaine/table"
 )
 
@@ -28,36 +26,28 @@ type route struct {
 	Via    string
 }
 
-func (z *ztClient) deleteNetwork(id string) {
-	resp := z.doReq("DELETE", "/controller/network/"+id, nil)
-	fmt.Println(string(resp))
+func (z *ztClient) deleteNetwork(id string) networkInfo {
+	var out networkInfo
+	z.doReq("DELETE", "/controller/network/"+id, nil, &out)
+	return out
 }
 
-func (z *ztClient) createNetwork(name string) {
+func (z *ztClient) createNetwork(name string) networkInfo {
+	var out networkInfo
 	payload := []byte(`{"name":"` + name + `"}`)
-	resp := z.doReq("POST", "/controller/network/"+z.address+"______", payload)
-	fmt.Println(string(resp))
+	z.doReq("POST", "/controller/network/"+z.address+"______", payload, &out)
+	return out
 }
 
 func (z *ztClient) getNetworkInfo(id string) networkInfo {
-	resp := z.doReq("GET", "/controller/network/"+id, nil)
-
 	var out networkInfo
-	err := json.Unmarshal(resp, &out)
-	if err != nil {
-		panic(err)
-	}
+	z.doReq("GET", "/controller/network/"+id, nil, &out)
 	return out
 }
 
 func (z *ztClient) listNetworks() []string {
-	resp := z.doReq("GET", "/controller/network", nil)
-
 	var out []string
-	err := json.Unmarshal(resp, &out)
-	if err != nil {
-		panic(err)
-	}
+	z.doReq("GET", "/controller/network", nil, &out)
 	return out
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/rodaine/table"
 )
 
@@ -24,24 +23,14 @@ type statusResp struct {
 }
 
 func (z *ztClient) getControllerInfo() controllerInfoResp {
-	resp := z.doReq("GET", "/controller", nil)
-
 	var out controllerInfoResp
-	err := json.Unmarshal(resp, &out)
-	if err != nil {
-		panic(err)
-	}
+	z.doReq("GET", "/controller", nil, &out)
 	return out
 }
 
 func (z *ztClient) getStatus() statusResp {
-	resp := z.doReq("GET", "/status", nil)
-
 	var out statusResp
-	err := json.Unmarshal(resp, &out)
-	if err != nil {
-		panic(err)
-	}
+	z.doReq("GET", "/status", nil, &out)
 	return out
 }
 
