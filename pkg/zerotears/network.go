@@ -79,9 +79,19 @@ func (z *ztClient) ListNetworks() []string {
 	return out
 }
 
-func PrintNetworkInfo(in networkInfo) {
+func (z *ztClient) ListNetworksVerbose() []networkInfo {
+	var out []networkInfo
+	for _, v := range z.ListNetworks() {
+		out = append(out, z.GetNetworkInfo(v))
+	}
+	return out
+}
+
+func PrintNetworkInfo(in []networkInfo) {
 	tbl := table.New("Network ID", "Name", "Private", "EnableBroadcast", "IPv4 Auto Assign", "IP Range Start", "IP Range End")
-	tbl.AddRow(in.ID, in.Name, in.Private, in.EnableBroadcast, in.V4AssignMode.Zt, in.IPAssignmentPools[0].IPRangeStart, in.IPAssignmentPools[0].IPRangeEnd)
+	for _, v := range in {
+		tbl.AddRow(v.ID, v.Name, v.Private, v.EnableBroadcast, v.V4AssignMode.Zt, v.IPAssignmentPools[0].IPRangeStart, v.IPAssignmentPools[0].IPRangeEnd)
+	}
 	tbl.Print()
 }
 

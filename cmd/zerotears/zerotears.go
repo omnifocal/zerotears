@@ -20,7 +20,8 @@ func main() {
 
 	// getStatusCmd := flag.NewFlagSet("status", flag.ExitOnError)
 	// getInfoCmd := flag.NewFlagSet("info", flag.ExitOnError)
-	// listNetsCmd := flag.NewFlagSet("ls-networks", flag.ExitOnError)
+	listNetsCmd := flag.NewFlagSet("ls-networks", flag.ExitOnError)
+	listNetsVerbose := listNetsCmd.Bool("v", false, "verbose")
 	createNetCmd := flag.NewFlagSet("mk-network", flag.ExitOnError)
 	createNetName := createNetCmd.String("name", "", "name")
 	createNetAuto := createNetCmd.Bool("auto", true, "auto v4 assignment")
@@ -36,8 +37,14 @@ func main() {
 		info := c.GetControllerInfo()
 		zerotears.PrintControllerInfo(&info)
 	case "ls-networks":
-		networks := c.ListNetworks()
-		zerotears.PrintNetworkIDs(networks)
+		listNetsCmd.Parse(os.Args[2:])
+		if *listNetsVerbose {
+			networks := c.ListNetworksVerbose()
+			zerotears.PrintNetworkInfo(networks)
+		} else {
+			networks := c.ListNetworks()
+			zerotears.PrintNetworkIDs(networks)
+		}
 	case "mk-network":
 		createNetCmd.Parse(os.Args[2:])
 		_, ipNet, err := net.ParseCIDR(*createNetCIDR)
@@ -45,8 +52,8 @@ func main() {
 			panic(err)
 		}
 		rangeStart, rangeEnd := cidr.AddressRange(ipNet)
-		newNet := c.CreateNetwork(*createNetName, rangeStart.String(), rangeEnd.String(), *createNetCIDR, *createNetAuto)
-		zerotears.PrintNetworkInfo(newNet)
+		c.CreateNetwork(*createNetName, rangeStart.String(), rangeEnd.String(), *createNetCIDR, *createNetAuto)
+		fmt.Println("Network created")
 	case "rm-network":
 		rmNetCmd.Parse(os.Args[2:])
 		c.DeleteNetwork(*rmNetID)
