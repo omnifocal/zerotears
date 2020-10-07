@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"github.com/rodaine/table"
-	"io/ioutil"
-	"net/http"
 )
 
 type controllerInfoResp struct {
@@ -26,13 +24,10 @@ type statusResp struct {
 }
 
 func (z *ztClient) getControllerInfo() controllerInfoResp {
-	url := z.host + "/controller"
-	req, _ := http.NewRequest("GET", url, nil)
-	resp := z.doReq(req)
+	resp := z.doReq("GET", "/controller", nil)
 
 	var out controllerInfoResp
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal(body, &out)
+	err := json.Unmarshal(resp, &out)
 	if err != nil {
 		panic(err)
 	}
@@ -40,13 +35,10 @@ func (z *ztClient) getControllerInfo() controllerInfoResp {
 }
 
 func (z *ztClient) getStatus() statusResp {
-	url := z.host + "/status"
-	req, _ := http.NewRequest("GET", url, nil)
-	resp := z.doReq(req)
+	resp := z.doReq("GET", "/status", nil)
 
 	var out statusResp
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal(body, &out)
+	err := json.Unmarshal(resp, &out)
 	if err != nil {
 		panic(err)
 	}

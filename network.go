@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/rodaine/table"
-	"io/ioutil"
-	"net/http"
 )
 
 type networkInfo struct {
@@ -32,29 +29,21 @@ type route struct {
 }
 
 func (z *ztClient) deleteNetwork(id string) {
-	url := z.host + "/controller/network/" + id
-	req, _ := http.NewRequest("DELETE", url, nil)
-	resp := z.doReq(req)
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	resp := z.doReq("DELETE", "/controller/network/"+id, nil)
+	fmt.Println(string(resp))
 }
 
 func (z *ztClient) createNetwork(name string) {
-	url := z.host + "/controller/network/" + z.address + "______"
 	payload := []byte(`{"name":"` + name + `"}`)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
-	z.doReq(req)
+	resp := z.doReq("POST", "/controller/network/"+z.address+"______", payload)
+	fmt.Println(string(resp))
 }
 
 func (z *ztClient) getNetworkInfo(id string) networkInfo {
-	url := z.host + "/controller/network/" + id
-	req, _ := http.NewRequest("GET", url, nil)
-	resp := z.doReq(req)
+	resp := z.doReq("GET", "/controller/network/"+id, nil)
 
 	var out networkInfo
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal(body, &out)
+	err := json.Unmarshal(resp, &out)
 	if err != nil {
 		panic(err)
 	}
@@ -62,17 +51,14 @@ func (z *ztClient) getNetworkInfo(id string) networkInfo {
 }
 
 func (z *ztClient) listNetworks() []string {
-	url := z.host + "/controller/network"
-	req, _ := http.NewRequest("GET", url, nil)
-	resp := z.doReq(req)
+	resp := z.doReq("GET", "/controller/network", nil)
 
-	out := new([]string)
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal(body, out)
+	var out []string
+	err := json.Unmarshal(resp, &out)
 	if err != nil {
 		panic(err)
 	}
-	return *out
+	return out
 }
 
 func printNetworkIDs(in []string) {
