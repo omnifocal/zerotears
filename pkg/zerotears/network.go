@@ -1,4 +1,4 @@
-package main
+package zerotears
 
 import (
 	"github.com/rodaine/table"
@@ -26,32 +26,32 @@ type route struct {
 	Via    string
 }
 
-func (z *ztClient) deleteNetwork(id string) networkInfo {
+func (z *ztClient) DeleteNetwork(id string) networkInfo {
 	var out networkInfo
 	z.doReq("DELETE", "/controller/network/"+id, nil, &out)
 	return out
 }
 
-func (z *ztClient) createNetwork(name string) networkInfo {
+func (z *ztClient) CreateNetwork(name string) networkInfo {
 	var out networkInfo
 	payload := []byte(`{"name":"` + name + `"}`)
 	z.doReq("POST", "/controller/network/"+z.address+"______", payload, &out)
 	return out
 }
 
-func (z *ztClient) getNetworkInfo(id string) networkInfo {
+func (z *ztClient) GetNetworkInfo(id string) networkInfo {
 	var out networkInfo
 	z.doReq("GET", "/controller/network/"+id, nil, &out)
 	return out
 }
 
-func (z *ztClient) listNetworks() []string {
+func (z *ztClient) ListNetworks() []string {
 	var out []string
 	z.doReq("GET", "/controller/network", nil, &out)
 	return out
 }
 
-func printNetworkIDs(in []string) {
+func PrintNetworkIDs(in []string) {
 	tbl := table.New("Network ID")
 	for _, v := range in {
 		tbl.AddRow(v)

@@ -1,4 +1,4 @@
-package main
+package zerotears
 
 import (
 	"github.com/rodaine/table"
@@ -22,25 +22,25 @@ type statusResp struct {
 	Version              string
 }
 
-func (z *ztClient) getControllerInfo() controllerInfoResp {
+func (z *ztClient) GetControllerInfo() controllerInfoResp {
 	var out controllerInfoResp
 	z.doReq("GET", "/controller", nil, &out)
 	return out
 }
 
-func (z *ztClient) getStatus() statusResp {
+func (z *ztClient) GetStatus() statusResp {
 	var out statusResp
 	z.doReq("GET", "/status", nil, &out)
 	return out
 }
 
-func printControllerInfo(in *controllerInfoResp) {
+func PrintControllerInfo(in *controllerInfoResp) {
 	tbl := table.New("Controller", "ApiVersion", "Clock", "DatabaseReady")
 	tbl.AddRow(in.Controller, in.ApiVersion, in.Clock, in.DatabaseReady)
 	tbl.Print()
 }
 
-func printStatus(in *statusResp) {
+func PrintStatus(in *statusResp) {
 	tbl := table.New("Address", "Online", "PlanetWorldID", "TCPFallbackActive", "Version")
 	tbl.AddRow(in.Address, in.Online, in.PlanetWorldID, in.TCPFallbackActive, in.Version)
 	tbl.Print()

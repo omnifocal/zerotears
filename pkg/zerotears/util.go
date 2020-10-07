@@ -1,4 +1,4 @@
-package main
+package zerotears
 
 import (
 	"bytes"
@@ -14,9 +14,15 @@ type ztClient struct {
 	client  http.Client
 }
 
-func (z *ztClient) init() {
-	status := z.getStatus()
+func Init(host string, secret string) *ztClient {
+	z := ztClient{
+		host:   host,
+		secret: secret,
+		client: http.Client{},
+	}
+	status := z.GetStatus()
 	z.address = status.Address
+	return &z
 }
 
 func (z *ztClient) doReq(method string, path string, body []byte, out interface{}) {
@@ -40,12 +46,4 @@ func (z *ztClient) doReq(method string, path string, body []byte, out interface{
 	if err != nil {
 		panic(err)
 	}
-}
-
-func readSecret(fileName string) string {
-	dat, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		panic(err)
-	}
-	return string(dat)
 }
